@@ -6,11 +6,11 @@
 /*   By: aldinc <aldinc@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 13:45:31 by aldinc            #+#    #+#             */
-/*   Updated: 2025/10/14 13:45:35 by aldinc           ###   ########.fr       */
+/*   Updated: 2025/10/14 15:03:08 by aldinc           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "get_next_line.h"
+#include "get_next_line_bonus.h"
 
 // Bir string'in uzunluğunu hesaplar.
 size_t	ft_strlen(const char *s)
@@ -59,7 +59,10 @@ char	*ft_strjoin(char *s1, const char *s2)
 		return (s1);
 	new_str = malloc(sizeof(char) * (ft_strlen(s1) + ft_strlen(s2) + 1));
 	if (!new_str)
+	{
+		free(s1);
 		return (NULL);
+	}
 	i = -1;
 	j = 0;
 	while (s1[++i])

@@ -6,7 +6,7 @@
 /*   By: aldinc <aldinc@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 13:44:38 by aldinc            #+#    #+#             */
-/*   Updated: 2025/10/14 13:44:39 by aldinc           ###   ########.fr       */
+/*   Updated: 2025/10/14 15:03:08 by aldinc           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,11 +25,18 @@ static char	*ft_process_storage(char **storage)
 	{
 		len = (newline_ptr - *storage) + 1;
 		line = (char *)malloc(sizeof(char) * (len + 1));
+		if (!line)
+			return (NULL);
 		for (int i = 0; i < len; i++)
 			line[i] = (*storage)[i];
 		line[len] = '\0';
 		
 		new_storage = (char *)malloc(sizeof(char) * (ft_strlen(*storage) - len + 1));
+		if (!new_storage)
+		{
+			free(line);
+			return (NULL);
+		}
 		for (int i = 0, j = len; (*storage)[j]; i++, j++)
 			new_storage[i] = (*storage)[j];
 		new_storage[ft_strlen(*storage) - len] = '\0';
@@ -69,6 +76,11 @@ char	*get_next_line(int fd)
 		}
 		buffer[bytes_read] = '\0';
 		storage = ft_strjoin(storage, buffer);
+		if (!storage)
+		{
+			free(buffer);
+			return (NULL);
+		}
 	}
 	free(buffer);
 	if (!storage || *storage == '\0')
