@@ -19,6 +19,76 @@ For the bonus features (multiple file descriptors handling), compile with the bo
 cc -Wall -Wextra -Werror -D BUFFER_SIZE=42 my_project.c get_next_line_bonus.c get_next_line_utils_bonus.c
 ```
 
+### Usage Examples (Main Templates)
+
+**1. Reading from an Existing File**
+This template demonstrates how to open an existing file and print its contents line by line using `get_next_line`.
+```c
+#include <fcntl.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include "get_next_line.h"
+
+int main(void)
+{
+    int     fd;
+    char    *line;
+
+    fd = open("subject.md", O_RDONLY);
+    if (fd < 0)
+    {
+        printf("Error opening file\n");
+        return (1);
+    }
+    while ((line = get_next_line(fd)) != NULL)
+    {
+        printf("%s", line);
+        free(line);
+    }
+    close(fd);
+    return (0);
+}
+```
+
+**2. Creating, Writing, and Reading a File**
+This template creates a new file, writes some text into it, closes it, reopens it for reading, and prints the output using `get_next_line`.
+```c
+#include <fcntl.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include "get_next_line.h"
+
+int main(void)
+{
+    int     fd;
+    char    *line;
+
+    // 1. Create and write to a file
+    fd = open("test_output.txt", O_CREAT | O_WRONLY | O_TRUNC, 0644);
+    if (fd < 0)
+        return (1);
+    write(fd, "Hello, 42!\n", 11);
+    write(fd, "This is Get Next Line.\n", 23);
+    write(fd, "Testing file creation and reading.\n", 35);
+    close(fd);
+
+    // 2. Open and read the file
+    fd = open("test_output.txt", O_RDONLY);
+    if (fd < 0)
+        return (1);
+    
+    printf("--- File Contents ---\n");
+    while ((line = get_next_line(fd)) != NULL)
+    {
+        printf("%s", line);
+        free(line);
+    }
+    close(fd);
+    return (0);
+}
+```
+
 ## Resources
 - [42 Curriculum Documentation](https://intra.42.fr)
 - `man 2 read`
