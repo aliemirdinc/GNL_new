@@ -6,13 +6,22 @@
 /*   By: aldinc <aldinc@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 13:44:11 by aldinc            #+#    #+#             */
-/*   Updated: 2025/10/14 15:03:08 by aldinc           ###   ########.fr       */
+/*   Updated: 2026/05/23 14:47:00 by aldinc           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-// Bir string'in uzunluğunu hesaplar.
+char	*ft_free_and_null(char **ptr)
+{
+	if (ptr && *ptr)
+	{
+		free(*ptr);
+		*ptr = NULL;
+	}
+	return (NULL);
+}
+
 size_t	ft_strlen(const char *s)
 {
 	size_t	i;
@@ -25,8 +34,6 @@ size_t	ft_strlen(const char *s)
 	return (i);
 }
 
-// Bir string içinde belirli bir karakteri arar.
-// Bulursa karakterin adresini, bulamazsa NULL döner.
 char	*ft_strchr(const char *s, int c)
 {
 	if (!s)
@@ -42,34 +49,30 @@ char	*ft_strchr(const char *s, int c)
 	return (NULL);
 }
 
-// İki string'i birleştirip yeni bir string oluşturur.
-// İlk string'i (s1) serbest bırakır, çünkü bu bizim 'storage' değişkenimiz olacak.
 char	*ft_strjoin(char *s1, const char *s2)
 {
 	char	*new_str;
 	size_t	i;
-	size_t	j;
+	size_t	len1;
+	size_t	len2;
 
-	if (!s1)
-	{
-		s1 = (char *)malloc(1 * sizeof(char));
-		s1[0] = '\0';
-	}
-	if (!s2)
-		return (s1);
-	new_str = malloc(sizeof(char) * (ft_strlen(s1) + ft_strlen(s2) + 1));
+	len1 = ft_strlen(s1);
+	len2 = ft_strlen(s2);
+	new_str = malloc(len1 + len2 + 1);
 	if (!new_str)
+		return (ft_free_and_null(&s1));
+	i = 0;
+	while (i < len1)
 	{
-		free(s1);
-		return (NULL);
-	}
-	i = -1;
-	j = 0;
-	while (s1[++i])
 		new_str[i] = s1[i];
-	while (s2[j])
-		new_str[i++] = s2[j++];
+		i++;
+	}
+	while (i < len1 + len2)
+	{
+		new_str[i] = s2[i - len1];
+		i++;
+	}
 	new_str[i] = '\0';
-	free(s1); // Eski storage'ı temizle
+	ft_free_and_null(&s1);
 	return (new_str);
 }

@@ -6,88 +6,94 @@
 /*   By: aldinc <aldinc@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 13:44:38 by aldinc            #+#    #+#             */
-/*   Updated: 2025/10/14 15:03:08 by aldinc           ###   ########.fr       */
+/*   Updated: 2026/05/23 14:47:00 by aldinc           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-// Satırı ayıklar ve storage'ı bir sonraki çağrı için günceller.
-static char	*ft_process_storage(char **storage)
+static char	*get_extracted_line(char *storage, char *nl)
 {
 	char	*line;
-	char	*new_storage;
-	char	*newline_ptr;
-	int		len;
+	size_t	i;
+	size_t	len;
 
-	newline_ptr = ft_strchr(*storage, '\n');
-	if (newline_ptr)
+	if (!nl)
+		return (ft_strjoin(NULL, storage));
+	len = nl - storage + 1;
+	line = malloc(len + 1);
+	if (!line)
+		return (NULL);
+	i = 0;
+	while (i < len)
 	{
-		len = (newline_ptr - *storage) + 1;
-		line = (char *)malloc(sizeof(char) * (len + 1));
-		if (!line)
-			return (NULL);
-		for (int i = 0; i < len; i++)
-			line[i] = (*storage)[i];
-		line[len] = '\0';
-		
-		new_storage = (char *)malloc(sizeof(char) * (ft_strlen(*storage) - len + 1));
-		if (!new_storage)
-		{
-			free(line);
-			return (NULL);
-		}
-		for (int i = 0, j = len; (*storage)[j]; i++, j++)
-			new_storage[i] = (*storage)[j];
-		new_storage[ft_strlen(*storage) - len] = '\0';
+		line[i] = storage[i];
+		i++;
 	}
-	else // Dosyanın sonunda \n yoksa
+	line[i] = '\0';
+	return (line);
+}
+
+static char	*ft_extract_line(char **storage)
+{
+	char	*line;
+	char	*remnant;
+	char	*nl;
+
+	nl = ft_strchr(*storage, '\n');
+	line = get_extracted_line(*storage, nl);
+	if (!line)
+		return (ft_free_and_null(storage));
+	if (!nl)
 	{
-		line = *storage;
-		*storage = NULL;
+		ft_free_and_null(storage);
 		return (line);
 	}
-	free(*storage);
-	*storage = new_storage;
+	remnant = ft_strjoin(NULL, nl + 1);
+	ft_free_and_null(storage);
+	if (!remnant)
+	{
+		free(line);
+		return (NULL);
+	}
+	*storage = remnant;
 	return (line);
+}
+
+static char	*read_till_newline(int fd, char *storage)
+{
+	char	*buffer;
+	int		bytes_read;
+
+	buffer = malloc(BUFFER_SIZE + 1);
+	if (!buffer)
+		return (ft_free_and_null(&storage));
+	bytes_read = 1;
+	while (bytes_read > 0 && !ft_strchr(storage, '\n'))
+	{
+		bytes_read = read(fd, buffer, BUFFER_SIZE);
+		if (bytes_read < 0)
+		{
+			free(buffer);
+			return (ft_free_and_null(&storage));
+		}
+		buffer[bytes_read] = '\0';
+		storage = ft_strjoin(storage, buffer);
+		if (!storage)
+			break ;
+	}
+	free(buffer);
+	return (storage);
 }
 
 char	*get_next_line(int fd)
 {
 	static char	*storage;
-	char		*buffer;
-	int			bytes_read;
 
 	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (NULL);
-	buffer = (char *)malloc(sizeof(char) * (BUFFER_SIZE + 1));
-	if (!buffer)
-		return (NULL);
-	bytes_read = 1;
-	while (bytes_read > 0 && !ft_strchr(storage, '\n'))
-	{
-		bytes_read = read(fd, buffer, BUFFER_SIZE);
-		if (bytes_read == -1)
-		{
-			free(buffer);
-			free(storage);
-			storage = NULL;
-			return (NULL);
-		}
-		buffer[bytes_read] = '\0';
-		storage = ft_strjoin(storage, buffer);
-		if (!storage)
-		{
-			free(buffer);
-			return (NULL);
-		}
-	}
-	free(buffer);
-	if (!storage || *storage == '\0')
-	{
-		free(storage);
-		storage = NULL;
-		return (NULL);
-	}
-	return (ft_process_storage(&storage));
+	storage = read_till_newline(fd, storage);
+	if (!storage || !*storage)
+		return (ft_free_and_null(&storage));
+	return (ft_extract_line(&storage));
 }

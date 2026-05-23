@@ -6,7 +6,7 @@
 /*   By: aldinc <aldinc@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 13:46:01 by aldinc            #+#    #+#             */
-/*   Updated: 2025/10/14 13:46:03 by aldinc           ###   ########.fr       */
+/*   Updated: 2026/05/23 14:47:00 by aldinc           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,12 +20,10 @@
 #  define BUFFER_SIZE 42
 # endif
 
-// Genellikle sistemlerde dosya tanıtıcıları için makul bir üst limit.
-# define FOPEN_MAX 1024
+# define MAX_FD 4096
 
 char	*get_next_line(int fd);
-
-// Yardımcı fonksiyonlar
+char	*ft_free_and_null(char **ptr);
 size_t	ft_strlen(const char *s);
 char	*ft_strchr(const char *s, int c);
 char	*ft_strjoin(char *s1, const char *s2);

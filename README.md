@@ -1,0 +1,37 @@
+*This project has been created as part of the 42 curriculum by aldinc.*
+
+# Get Next Line
+
+## Description
+The **Get Next Line (GNL)** project is designed to create a function that reads a single line from a file descriptor (`fd`), allowing it to be called repeatedly to read a file line by line until the End of File (EOF) is reached. This project serves as a crucial building block in the 42 curriculum, introducing developers to the robust use of `static variables`, memory allocation, and file I/O operations in C.
+
+## Instructions
+
+To compile and use the `get_next_line` function in your projects, simply include the header and compile your files with the `get_next_line` source files:
+
+```bash
+cc -Wall -Wextra -Werror -D BUFFER_SIZE=42 my_project.c get_next_line.c get_next_line_utils.c
+```
+*Note: You can change the `BUFFER_SIZE` macro to any desired integer to test its efficiency.*
+
+For the bonus features (multiple file descriptors handling), compile with the bonus files:
+```bash
+cc -Wall -Wextra -Werror -D BUFFER_SIZE=42 my_project.c get_next_line_bonus.c get_next_line_utils_bonus.c
+```
+
+## Resources
+- [42 Curriculum Documentation](https://intra.42.fr)
+- `man 2 read`
+- `man 3 malloc`
+- `man 3 free`
+
+**AI Usage Statement:**
+AI was used in this project to review the code structure against the strict 42 Norm v3 requirements. It assisted in identifying structural deviations such as inline declarations and `for` loops, refactoring the algorithm into a more unique and memory-leak-safe form, ensuring adherence to the 25-line limit per function, and generating this compliant README.md file in accordance with Chapter V of the project subject.
+
+## Algorithm Justification
+The chosen algorithm relies on the concept of an "accumulation buffer" via a single `static char *storage`.
+1. **Reading**: The function reads from the file descriptor into a temporary buffer in chunks of `BUFFER_SIZE` bytes. The new chunk is concatenated (`ft_strjoin`) to the `storage` static variable until a newline character `\n` is found or `read` returns 0 (EOF).
+2. **Extraction**: Once the data is accumulated, `ft_extract_line` determines the exact position of the newline. It dynamically allocates just enough memory to hold the line (including the newline itself).
+3. **Storage Updating**: The remaining part of the string (characters following the newline) is saved back into the static `storage` pointer for the next function call. If EOF is reached, memory is thoroughly cleaned up, avoiding any dangling pointers or memory leaks.
+
+For the **Bonus** part, the `storage` variable is transformed into a static array of pointers (`static char *storage[MAX_FD]`). This allows the function to keep track of multiple reading instances asynchronously, indexing the array directly using the file descriptor as the key.
