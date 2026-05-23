@@ -34,7 +34,7 @@ int main(void)
     int     fd;
     char    *line;
 
-    fd = open("subject.md", O_RDONLY);
+    fd = open("trial1.txt", O_RDONLY);
     if (fd < 0)
     {
         printf("Error opening file\n");
@@ -89,11 +89,103 @@ int main(void)
 }
 ```
 
+**3. Reading Multiple Files Simultaneously (Bonus)**
+This template demonstrates how the bonus version of `get_next_line` can manage multiple file descriptors at once without losing track of their reading state.
+```c
+#include <fcntl.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include "get_next_line_bonus.h"
+
+int main(void)
+{
+    int     fd1, fd2, fd3;
+    char    *line;
+
+    // 1. Create 3 files and write some text
+    fd1 = open("file1.txt", O_CREAT | O_WRONLY | O_TRUNC, 0644);
+    fd2 = open("file2.txt", O_CREAT | O_WRONLY | O_TRUNC, 0644);
+    fd3 = open("file3.txt", O_CREAT | O_WRONLY | O_TRUNC, 0644);
+    
+    if (fd1 < 0 || fd2 < 0 || fd3 < 0)
+        return (1);
+
+    write(fd1, "File 1 - Line 1\nFile 1 - Line 2\n", 32);
+    write(fd2, "File 2 - Line 1\nFile 2 - Line 2\n", 32);
+    write(fd3, "File 3 - Line 1\nFile 3 - Line 2\n", 32);
+    
+    close(fd1);
+    close(fd2);
+    close(fd3);
+
+    // 2. Open them for reading
+    fd1 = open("file1.txt", O_RDONLY);
+    fd2 = open("file2.txt", O_RDONLY);
+    fd3 = open("file3.txt", O_RDONLY);
+    
+    if (fd1 < 0 || fd2 < 0 || fd3 < 0)
+        return (1);
+
+    // 3. Read alternately to demonstrate static array
+    printf("--- First Round ---\n");
+    
+    line = get_next_line(fd1);
+    if (line != NULL)
+    {
+        printf("FD1: %s", line);
+        free(line);
+    }
+
+    line = get_next_line(fd2);
+    if (line != NULL)
+    {
+        printf("FD2: %s", line);
+        free(line);
+    }
+
+    line = get_next_line(fd3);
+    if (line != NULL)
+    {
+        printf("FD3: %s", line);
+        free(line);
+    }
+
+    printf("--- Second Round ---\n");
+    
+    line = get_next_line(fd1);
+    if (line != NULL)
+    {
+        printf("FD1: %s", line);
+        free(line);
+    }
+
+    line = get_next_line(fd2);
+    if (line != NULL)
+    {
+        printf("FD2: %s", line);
+        free(line);
+    }
+
+    line = get_next_line(fd3);
+    if (line != NULL)
+    {
+        printf("FD3: %s", line);
+        free(line);
+    }
+
+    close(fd1);
+    close(fd2);
+    close(fd3);
+    return (0);
+}
+```
+
 ## Resources
-- [42 Curriculum Documentation](https://intra.42.fr)
-- `man 2 read`
-- `man 3 malloc`
-- `man 3 free`
+- 42 Curriculum Documentation
+- `man read`
+- `man malloc`
+- `man free`
 
 **AI Usage Statement:**
 AI was used in this project to review the code structure against the strict 42 Norm v3 requirements. It assisted in identifying structural deviations such as inline declarations and `for` loops, refactoring the algorithm into a more unique and memory-leak-safe form, ensuring adherence to the 25-line limit per function, and generating this compliant README.md file in accordance with Chapter V of the project subject.
